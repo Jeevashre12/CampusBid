@@ -61,6 +61,10 @@ Bids are accepted only while an auction is active and before its server-checked 
 
 Listing photos can be selected as up to five local image files, with a 5 MB limit per image.
 
+Expired listings are never removed automatically. The server changes them to `CLOSED` when an approved bid wins or `UNSOLD` when no bid is approved, and expired listings cannot be deleted.
+
+Anti-sniping protection extends an auction by 60 seconds whenever a valid bid arrives with 30 seconds or less remaining. If another valid bid arrives during the final 30 seconds of the new deadline, it extends again.
+
 New bids start as `PENDING`. The listing seller can approve or reject each bid while the auction is open. When the closing time passes, the server finalizes the auction: the highest approved bid wins and the winner is displayed on the listing, or the listing is marked unsold when no bid was approved.
 
 The API is organized by routes, controllers, models, middleware, services, and jobs so auction closing, handover, notifications, saved searches, and questions can be added without mixing concerns.

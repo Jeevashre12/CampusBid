@@ -61,10 +61,10 @@ export default function AuctionDetailsPage() {
 
     setState((current) => ({ ...current, submitting: true, error: '', success: '' }));
     try {
-      await placeBid(id, bidAmount);
+      const result = await placeBid(id, bidAmount);
       setAmount('');
       await loadAuction();
-      setState((current) => ({ ...current, submitting: false, success: 'Bid placed successfully.' }));
+      setState((current) => ({ ...current, submitting: false, success: result.deadlineExtended ? 'Bid placed successfully. The auction deadline was extended by 60 seconds.' : 'Bid placed successfully.' }));
     } catch (error) {
       setState((current) => ({ ...current, submitting: false, error: error.response?.data?.message || 'Your bid could not be accepted. Refresh and try again.', success: '' }));
     }
@@ -87,7 +87,7 @@ export default function AuctionDetailsPage() {
   return <><NavBar /><main className="page auction-detail">
     <Link className="muted" to="/marketplace">← Back to marketplace</Link>
     <div className="detail-layout">
-      <section><div className="detail-image">{listing.photos?.[0] ? <img src={getMediaUrl(listing.photos[0])} alt={listing.title} /> : 'No photo'}</div><p className="eyebrow">{listing.category}</p><h1>{listing.title}</h1><p className="muted">{listing.condition} condition · Seller: {listing.seller?.name || 'Campus seller'}</p><p className="detail-description">{listing.description}</p>{isSeller && <button className="button delete-button" type="button" onClick={removeListing} disabled={state.submitting}>Delete listing</button>}</section>
+      <section><div className="detail-image">{listing.photos?.[0] ? <img src={getMediaUrl(listing.photos[0])} alt={listing.title} /> : 'No photo'}</div><p className="eyebrow">{listing.category}</p><h1>{listing.title}</h1><p className="muted">{listing.condition} condition · Seller: {listing.seller?.name || 'Campus seller'}</p><p className="detail-description">{listing.description}</p>{isSeller && !isClosed && <button className="button delete-button" type="button" onClick={removeListing} disabled={state.submitting}>Delete listing</button>}</section>
       <aside className="bid-panel"><p className="eyebrow">Live auction</p><p className="bid-label">{hasBids ? 'Current highest bid' : 'Starting price'}</p><h2>₹{hasBids ? listing.currentPrice : listing.startingPrice}</h2><p className="muted">Minimum next bid: ₹{minimumBid}</p><p className="muted">Closes: {formatDate(listing.closesAt)}</p>
         {listing.status === 'CLOSED' && listing.winner ? <p className="winner-message"><strong>Auction won by {listing.winner.name}</strong><br />Final bid: ₹{listing.winningBid?.amount}</p> : listing.status === 'UNSOLD' ? <p className="muted">Auction ended without an approved winner.</p> : isSeller ? <p className="form-error">You cannot bid on your own auction.</p> : isClosed ? <p className="form-error">This auction is closed.</p> : <form onSubmit={submit} className="bid-form"><label>Your bid<input type="number" min={minimumBid} step="0.01" value={amount} onChange={(event) => setAmount(event.target.value)} placeholder={String(minimumBid)} required /></label><button className="button" type="submit" disabled={state.submitting}>{state.submitting ? 'Placing bid...' : user ? 'Place bid' : 'Sign in to bid'}</button></form>}
         {state.error && <p className="form-error" role="alert">{state.error}</p>}{state.success && <p className="success-message" role="status">{state.success}</p>}
