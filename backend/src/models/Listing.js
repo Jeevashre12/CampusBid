@@ -1,0 +1,5 @@
+import mongoose from 'mongoose';
+const listingSchema = new mongoose.Schema({ seller: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, title: { type: String, required: true, trim: true, maxlength: 120 }, category: { type: String, required: true }, description: { type: String, required: true, maxlength: 3000 }, condition: { type: String, required: true }, photos: [{ type: String }], startingPrice: { type: Number, required: true, min: 0 }, minimumIncrement: { type: Number, required: true, min: 1 }, currentPrice: { type: Number, required: true, min: 0 }, closesAt: { type: Date, required: true }, status: { type: String, enum: ['ACTIVE', 'CLOSED', 'UNSOLD', 'RESERVED', 'HANDED_OVER', 'CANCELLED'], default: 'ACTIVE' } }, { timestamps: true });
+listingSchema.index({ status: 1, closesAt: 1 }); listingSchema.index({ title: 'text', description: 'text' });
+export default mongoose.model('Listing', listingSchema);
+
