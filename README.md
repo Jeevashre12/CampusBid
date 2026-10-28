@@ -21,7 +21,7 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-The API runs on `http://localhost:5001`. `GET /api/health` is the connection check.
+The API runs on `http://localhost:5001`. `GET /api/health` is the connection check and reports the current MongoDB connection state.
 
 ## Frontend setup
 
@@ -40,13 +40,23 @@ Run both terminals at the same time. The frontend calls the backend through `VIT
 
 ### Backend
 
-See `backend/.env.example`: `PORT`, `MONGODB_URI`, `JWT_SECRET`, `FRONTEND_URL`, and optional Cloudinary credentials.
+See `backend/.env.example`: `PORT`, `MONGODB_URI`, `JWT_SECRET`, `FRONTEND_URL`, and optional Cloudinary credentials. For MongoDB Atlas, set `MONGODB_URI` in the ignored `backend/.env` file and replace only the username and password placeholders. Never paste the password into chat or commit the file.
 
 ### Frontend
 
 See `frontend/.env.example`: `VITE_API_URL` and `VITE_SOCKET_URL`.
 
 Never commit a real `.env` file or API credentials.
+
+### MongoDB Atlas setup
+
+1. In Atlas, create a database user with permission to read and write the `campusbid` database.
+2. In **Network Access**, add the IP address of the machine running the backend.
+3. Copy the Atlas driver connection string into `backend/.env` as `MONGODB_URI`.
+4. If the password contains characters such as `@`, `:`, `/`, or `#`, URL-encode them in the connection string.
+5. Start the backend with `npm run dev`. A successful connection prints `MongoDB connected: ...` before the API listening message.
+
+If authentication fails, verify the database username/password (not your Atlas website login), the cluster hostname, URL encoding, and that the user has access to the selected database. If the connection times out, check the Atlas IP allowlist and firewall. If `MONGODB_URI` is missing, the server exits with an explicit configuration error.
 
 ## API currently available
 
