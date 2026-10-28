@@ -1,3 +1,2 @@
 export function notFound(req, res) { res.status(404).json({ message: `Route not found: ${req.method} ${req.originalUrl}` }); }
-export function errorHandler(error, req, res, next) { console.error(error); res.status(error.statusCode || 500).json({ message: error.statusCode ? error.message : 'Internal server error' }); }
-
+export function errorHandler(error, req, res, next) { console.error(error); const statusCode = error.statusCode || (error.code === 'LIMIT_FILE_SIZE' || error.code === 'LIMIT_FILE_COUNT' ? 400 : 500); res.status(statusCode).json({ message: statusCode === 500 ? 'Internal server error' : error.message }); }
