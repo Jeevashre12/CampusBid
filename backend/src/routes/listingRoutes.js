@@ -1,10 +1,12 @@
 import { Router } from 'express';
-import { createListing, getListing, listListings, placeBid } from '../controllers/listingController.js';
+import { createListing, decideBid, deleteListing, getListing, listListings, placeBid } from '../controllers/listingController.js';
 import { requireAuth } from '../middleware/auth.js';
+import { listingImages } from '../middleware/upload.js';
 const router = Router();
 router.get('/', listListings);
 router.get('/:id', getListing);
-router.post('/', requireAuth, createListing);
+router.post('/', requireAuth, listingImages, createListing);
 router.post('/:id/bids', requireAuth, placeBid);
+router.patch('/:id/bids/:bidId/decision', requireAuth, decideBid);
+router.delete('/:id', requireAuth, deleteListing);
 export default router;
-

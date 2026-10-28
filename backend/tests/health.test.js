@@ -14,3 +14,12 @@ test('health route returns service status', async () => {
   assert.equal(body.ok, true);
   assert.equal(body.service, 'CampusBid API');
 });
+
+test('uploaded media allows cross-origin browser loading', async () => {
+  const server = http.createServer(app);
+  await new Promise((resolve) => server.listen(0, resolve));
+  const { port } = server.address();
+  const response = await fetch(`http://127.0.0.1:${port}/uploads/missing-image.png`);
+  await new Promise((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+  assert.equal(response.headers.get('cross-origin-resource-policy'), 'cross-origin');
+});

@@ -9,7 +9,7 @@ import listingRoutes from './routes/listingRoutes.js';
 import { errorHandler, notFound } from './middleware/error.js';
 import { fileURLToPath } from 'node:url';
 const app = express();
-app.use(helmet()); app.use(cors({ origin: env.frontendUrl })); app.use(express.json({ limit: '1mb' })); app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } })); app.use(cors({ origin: env.frontendUrl })); app.use(express.json({ limit: '1mb' })); app.use(rateLimit({ windowMs: 60_000, limit: 120 }));
 app.use('/uploads', express.static(fileURLToPath(new URL('../uploads', import.meta.url))));
 app.get('/api/health', (req, res) => res.json({ ok: true, service: 'CampusBid API', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected' }));
 app.use('/api/auth', authRoutes); app.use('/api/listings', listingRoutes);

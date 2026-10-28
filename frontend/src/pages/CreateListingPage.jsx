@@ -11,7 +11,7 @@ const initialForm = {
   startingPrice: '',
   minimumIncrement: '',
   closesAt: '',
-  photos: ''
+  photos: []
 };
 
 export default function CreateListingPage() {
@@ -23,19 +23,23 @@ export default function CreateListingPage() {
     setForm((current) => ({ ...current, [event.target.name]: event.target.value }));
   }
 
+  function updatePhotos(event) {
+    setForm((current) => ({ ...current, photos: Array.from(event.target.files || []) }));
+  }
+
   async function submit(event) {
     event.preventDefault();
     setState({ loading: true, error: '' });
     try {
-      await api.post('/listings', {
-        ...form,
-        startingPrice: Number(form.startingPrice),
-        minimumIncrement: Number(form.minimumIncrement),
-        photos: form.photos ? form.photos.split(',').map((photo) => photo.trim()).filter(Boolean) : []
+      const payload = new FormData();
+      Object.entries(form).forEach(([key, value]) => {
+        if (key !== 'photos') payload.append(key, value);
       });
+      form.photos.forEach((photo) => payload.append('photos', photo));
+      await api.post('/listings', payload);
       navigate('/marketplace');
     } catch (error) {
-      setState({ loading: false, error: error.response?.data?.message || 'Unable to create the listing.' });
+      setState({ loading: false, error: error.response?.data?.message || (error.request ? 'The CampusBid server could not be reached. Make sure the backend is running on port 5001.' : 'Unable to create the listing.') });
     }
   }
 
@@ -49,10 +53,9 @@ export default function CreateListingPage() {
       <label>Starting price<input name="startingPrice" type="number" min="0" step="0.01" value={form.startingPrice} onChange={updateField} required /></label>
       <label>Minimum bid increment<input name="minimumIncrement" type="number" min="1" step="0.01" value={form.minimumIncrement} onChange={updateField} required /></label>
       <label>Closing date and time<input name="closesAt" type="datetime-local" value={form.closesAt} onChange={updateField} required /></label>
-      <label>Photo URLs <span className="muted">(comma-separated, optional)</span><input name="photos" value={form.photos} onChange={updateField} /></label>
+      <label>Photos <span className="muted">(up to 5 images, 5 MB each)</span><input name="photos" type="file" accept="image/*" multiple onChange={updatePhotos} /></label>
       {state.error && <p className="form-error" role="alert">{state.error}</p>}
       <button className="button" type="submit" disabled={state.loading}>{state.loading ? 'Creating listing...' : 'Create listing'}</button>
     </form>
   </main></>;
 }
-

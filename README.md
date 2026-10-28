@@ -21,7 +21,7 @@ Copy-Item .env.example .env
 npm run dev
 ```
 
-The API runs on `http://localhost:5000`. `GET /api/health` is the connection check.
+The API runs on `http://localhost:5001`. `GET /api/health` is the connection check.
 
 ## Frontend setup
 
@@ -57,6 +57,12 @@ Never commit a real `.env` file or API credentials.
 - `POST /api/listings` - create a listing (JWT required).
 - `POST /api/listings/:id/bids` - place an atomic bid (JWT required).
 
+Bids are accepted only while an auction is active and before its server-checked deadline. The first bid must meet the starting price; later bids must meet the current price plus the minimum increment.
+
+Listing photos can be selected as up to five local image files, with a 5 MB limit per image.
+
+New bids start as `PENDING`. The listing seller can approve or reject each bid while the auction is open. When the closing time passes, the server finalizes the auction: the highest approved bid wins and the winner is displayed on the listing, or the listing is marked unsold when no bid was approved.
+
 The API is organized by routes, controllers, models, middleware, services, and jobs so auction closing, handover, notifications, saved searches, and questions can be added without mixing concerns.
 
 ## Testing
@@ -69,4 +75,3 @@ npm test
 ## Deployment outline
 
 Build the frontend with `npm run build` in `frontend/`, deploy its `dist/` folder to a static host, and deploy the backend to a Node-compatible host. Set the production frontend URL in `FRONTEND_URL` and the production API URL in `VITE_API_URL`.
-
